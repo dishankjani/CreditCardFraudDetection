@@ -18,9 +18,9 @@ handler = Mangum(app)
 
 # Download the model file from S3
 session = boto3.Session(
-        aws_access_key_id='ASIARVBCLL7EWP7EMKNC',
-        aws_secret_access_key='upgHF8w2Cl0fksTinOIled5Pl5BgI9o46KW/ngGA',
-        aws_session_token="FwoGZXIvYXdzELv//////////wEaDAIpEbO1GHOtkvTbuSLAAf9AzbeiWlTuvaC1e+1INdPtvkm62oxS7vg8gacarnPrKwMTLif6uxXEVxIEcEbIkiIfdwQKkc4SV2a8pqQCvQIe56tSt/+OwY/NB5YfEaxbxDdifvWaedHs0clYWPxZGtpmpGA3I3Yg1lpQgI08Mn4byt6B+k+OImXQG6X8W5/9tmGWNNtjsXjyief8LvyzcxIJdHrDOOYrjkhCLrBmwvwC6Gy52S0XSO8gYDugQ5HHSehGRklCC6K09zTa1113CyjKr8ulBjItURstLfO81YfTaaLtd98QYN/bRcyhtutuUlRGRFA7CVKxiIj/udL2skv1zJ3l",
+        aws_access_key_id='ASIARVBCLL7ERPRX2EMK',
+        aws_secret_access_key='gEzas+hPLcQXAC0phkGBwZj7MG9Udofcnx84OY/d',
+        aws_session_token="FwoGZXIvYXdzEBYaDNC6Y5zH8CiM8gombCLAAXIlwC2Pi78kWkRY8EN9aPjHzNqHWgsm0uDoQju6D5LGDJqZzN3fNyOBNvS3n+1OirCMH6mRSzthbTOL+FQvBKZmDQ8wbDelRSwUrclq1rzjd0CA6Lt442nbg2Xv55jj2FZFn+Rc8Q9kaXNE0YeOYBIVjTBHjd8cAH0KdBdft0Ey/reeFSQ+0+wRmlapxiOXF4raGjopCvhozbjRDh34AYbwRyT6tscll3fbkDDtqvJ9iv25r4o8R+s/0DCWhPT2wCjUtN+lBjItemld2n7XUeDjk5SvpgTmeRytFzwteYpEwkxpNIaiEL5/1nfh7snrKdVxKFo4",
         region_name='us-east-1'  # Replace with your desired region
     )
 # Configure AWS credentials
@@ -86,4 +86,4 @@ def predict_fraud():
     return render_template('index.html', result=result)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", port=80)
