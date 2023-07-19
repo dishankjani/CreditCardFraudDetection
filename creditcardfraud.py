@@ -7,7 +7,19 @@ from matplotlib import style
 import boto3
 import pickle
 
-session = boto3.Session(region_name='us-east-1')
+# Your AWS credentials
+aws_access_key_id = 'ASIARVBCLL7ERPRX2EMK'
+aws_secret_access_key = 'gEzas+hPLcQXAC0phkGBwZj7MG9Udofcnx84OY/d'
+aws_session_token = 'FwoGZXIvYXdzEBYaDNC6Y5zH8CiM8gombCLAAXIlwC2Pi78kWkRY8EN9aPjHzNqHWgsm0uDoQju6D5LGDJqZzN3fNyOBNvS3n+1OirCMH6mRSzthbTOL+FQvBKZmDQ8wbDelRSwUrclq1rzjd0CA6Lt442nbg2Xv55jj2FZFn+Rc8Q9kaXNE0YeOYBIVjTBHjd8cAH0KdBdft0Ey/reeFSQ+0+wRmlapxiOXF4raGjopCvhozbjRDh34AYbwRyT6tscll3fbkDDtqvJ9iv25r4o8R+s/0DCWhPT2wCjUtN+lBjItemld2n7XUeDjk5SvpgTmeRytFzwteYpEwkxpNIaiEL5/1nfh7snrKdVxKFo4'  # If using temporary credentials (Optional)
+
+# Create a Boto3 session with the provided credentials
+session = boto3.Session(
+    aws_access_key_id=aws_access_key_id,
+    aws_secret_access_key=aws_secret_access_key,
+    aws_session_token=aws_session_token,
+    region_name='us-east-1'  # Replace with your desired region
+)
+
 # Configure AWS credentials
 s3_client = session.client('s3')
 
@@ -27,11 +39,7 @@ data = pd.concat([trainData, testData], axis = 0)
 # Resetting the index
 data.reset_index(inplace = True)
 
-
-
 data = data.drop(['index', 'Unnamed: 0'], axis = 1)
-
-
 
 # doing some prelimenary adjustments to data set
 data = data.drop('trans_num', axis=1)
@@ -96,3 +104,4 @@ file_path = 'model.pkl'
 key_name = 'model.pkl'
 bucket_name = 'creditcardanomolymodeloutput'
 s3_client.upload_file(file_path, bucket_name, key_name)
+print("everything done")
