@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Credit Card Fraud Detection</title>
+</head>
+<body>
+    <h1>Credit Card Fraud Detection</h1>
+    <form method="POST" action="/predict">
+        <label for="cc_num">Credit Card Number:</label>
+        <input type="text" id="cc_num" name="cc_num" required><br><br>
+
+        <label for="amt">Transaction Amount:</label>
+        <input type="text" id="amt" name="amt" required><br><br>
+
+        <label for="first">First Name:</label>
+        <input type="text" id="first" name="first" required><br><br>
+
+        <label for="last">Last Name:</label>
+        <input type="text" id="last" name="last" required><br><br>
+
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender" required>
+            <option value="M">M</option>
+            <option value="F">F</option>
+        </select><br><br>
+
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" required><br><br>
+
+        <label for="city_pop">City Population:</label>
+        <input type="text" id="city_pop" name="city_pop" required><br><br>
+
+        <label for="job">Job:</label>
+        <input type="text" id="job" name="job" required><br><br>
+
+        <label for="dob">Date of Birth:</label>
+        <input type="text" id="dob" name="dob" required><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if result %}
+    <p>{{ result }}</p>
+    {% endif %}
+    
+</body>
+</html>
