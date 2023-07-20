@@ -20,9 +20,9 @@ handler = Mangum(app)
 api_url = os.environ.get('ApiGatewayEndpoint')
 # Download the model file from S3
 session = boto3.Session(
-        aws_access_key_id='ASIARVBCLL7E3UTOJKPF',
-        aws_secret_access_key='g7qYhj2KlyFTAUb7GIhDQdBG6YIIT4wqkBAs72qs',
-        aws_session_token="FwoGZXIvYXdzEDIaDJwzd42KqPmCridAsCLAATSz4SVT75quaJPcuzFrrnFccInOOS4xch+vgFV+m8w0LS8ELjyu30mXbyrY9uTaj2UOd7tTC1Nnu8InIgkYq/pHZSHlnZN8XbkFk6j2gwDuJ+LxGclP0BjnNyoVtUH9LCiyeyRssyc4fvkBEH+DN+p5xEby3SQIodaieWdIsFxppQhnFAa6WHTM91Qx2ny56RSImZLJoP4qrYjDMIujcaR4pkg7HED3UV8xEqqRcxgw5e86KgNZLrMML3mFBl4Coyjwx+WlBjIt4kI8tXX5MuSXcDrYFVmW0bEqKBtWjpc8X6BYpNnR3obTYpT6CvTCH53yMu/3",
+        aws_access_key_id='ASIARVBCLL7EQSUENOJG',
+        aws_secret_access_key='o9UL3FbFy/ZqkrdfRo0TfrdhCT73WK4qBlv6rgOf',
+        aws_session_token="FwoGZXIvYXdzEDgaDApfRuRrgW6X5d/wRSLAAaFQ2Jt4SBdj5TDeTyWTcSsQnzEwF79glmqWEq/YI8DXuFXaFprPJIXRO+OoS8jMU12gAU5803YVWXJKB38pEinQg3r6Nyi/J298t9/aadQcx9RjYkJqWNtM+kRIxqYNWzJig6kiiZuv+F/kXdONxEOcw59I82JaYmLLgLcFsLbhIAHhG6RXUij3TSjmIwM/Q9aAUHnv0iLaYKWXlbGbqRPmCN/Fg0iT/F87ZEOpYAU6XJjt6B+1WWIWcOf3/sWC9iiQ5ealBjItsQOIBzeXUZRNgMjhxvIqb2QNkBoQ9YnhsReMaddg7ar6vYIUe+zi8B+Z6/sW",
         region_name='us-east-1'  # Replace with your desired region
     )
 # Configure AWS credentials
