@@ -16,11 +16,13 @@ handler = Mangum(app)
 #we need to install scikit-learn to run this line
 #model = pickle.load(open('model.pkl', 'rb'))
 
+# Load the API Gateway URI from the environment variable
+api_url = os.environ.get('ApiGatewayEndpoint')
 # Download the model file from S3
 session = boto3.Session(
-        aws_access_key_id='ASIARVBCLL7EU25LOXNW',
-        aws_secret_access_key='Y6calIeS8TCP0+JkEuDL3UT2FodrkaJGOsEgkJww',
-        aws_session_token="FwoGZXIvYXdzECUaDK/QdOTtN1yblMA3yiLAAeycdbftaZCjzFLAWxkDt5LpuB0FFRsKTl4OQJWxYRiA4dsqfc5jnejGGaV1rIRjzATvbw7O11DNHost7KdCsCDas4BRN/IktcTLW5AY8i0E54bOp9UTC2gQVjc70B2DjGMsaTJczUb68wVKeSJ+yproi0Qt/9TeP0G+93QGgvjAlWXbZQczn2mDSCR8PUXxdaXi7lwmvPDW7UBeUzhzmKxKnI3YMfUjpsruYE/gpsbzN++EEPWOtZOeGNnYWBi6PSjBz+KlBjIts1mzczcF/cxtgydyHPxUivh52+6oVTF6MpMRT8yO3My0IynDXpZQjz52u183",
+        aws_access_key_id='ASIARVBCLL7EZOFYS7E3',
+        aws_secret_access_key='E1+kEsOOQdCBRDYpQB4ayHxQ9PyqsCZu3xVrsMDq',
+        aws_session_token="FwoGZXIvYXdzEC8aDMhfd3z0dAp/rSn8kiLAAU1D9/4FjM1yLDFBKeu7ctDWKOBAYV2GVITV8SYI+pyQI4C7YcTQ/ammHIinPWfjTqSiyL7e7IMn0D0lcn4SQDt2wGPXuLGVocBVOp7+UdiHE/6IP6JN9fptq6MQdQ9gyfjE4dMtPCvnh0SU4CoBDA7uzFReXAQrsvb6tG+7bS3x/fkFvtkXSJpno/ALiWWaTAuyCIVCqwkenNQ22bIvz0SftVpql6wk8An9otiGVOXWao6darbkGANtev+V6tZ+gyjg+OSlBjItAJItPvTpDIEaoOIMYoNKmbEIu+fG3ZAfJLTH6lGbKHUgKyCM67sDjj8VLbxe",
         region_name='us-east-1'  # Replace with your desired region
     )
 # Configure AWS credentials
@@ -78,7 +80,7 @@ def predict_fraud():
 
     # Make the API request
     # Extract the result from the response
-    api_url = 'https://qiqdlzktog.execute-api.us-east-1.amazonaws.com/predict'
+    #api_url = 'https://qiqdlzktog.execute-api.us-east-1.amazonaws.com/predict'
     response = requests.post(api_url, json=payload)
     response_data = response.json()  # Convert the response content to JSON
 
