@@ -18,9 +18,9 @@ handler = Mangum(app)
 
 # Download the model file from S3
 session = boto3.Session(
-        aws_access_key_id='ASIARVBCLL7EQ6XQBK6T',
-        aws_secret_access_key='wIBawOdQ05NYX3YJeEH4uSuxcyWzfPOYdGElZHmj',
-        aws_session_token="FwoGZXIvYXdzECEaDCVcgmyMOyGjh2VNtSLAAa5/hQPQSo02jQmRQ3Yv4E5ZKzohsP7q90achIerrj7IgMjkA36nVoG34910fu8OKWuscmE/sLEXsq2GS12L+laOlsxl3EMt6DQISTzFE6dzKn12XTcNp9LXdTNim2DV/0LlqzMZuoY1AnzfQfQhZXaZkjcy0h6z3o2jo2NsQ5eGgG3fo01QjAKk4tE/8/4J3A7FbPqSgBKiFEc59xEAau6p+QuT1qRoMj3cqn83Q9i6gek8kDPYVquApyru2ZB2ECio3uGlBjItVimpAHVowXX9SssqNnU9OG8MFpnG/oBmzjIlnBzOjQfTrHKw/DI+Tz/y/vBO",
+        aws_access_key_id='ASIARVBCLL7EU25LOXNW',
+        aws_secret_access_key='Y6calIeS8TCP0+JkEuDL3UT2FodrkaJGOsEgkJww',
+        aws_session_token="FwoGZXIvYXdzECUaDK/QdOTtN1yblMA3yiLAAeycdbftaZCjzFLAWxkDt5LpuB0FFRsKTl4OQJWxYRiA4dsqfc5jnejGGaV1rIRjzATvbw7O11DNHost7KdCsCDas4BRN/IktcTLW5AY8i0E54bOp9UTC2gQVjc70B2DjGMsaTJczUb68wVKeSJ+yproi0Qt/9TeP0G+93QGgvjAlWXbZQczn2mDSCR8PUXxdaXi7lwmvPDW7UBeUzhzmKxKnI3YMfUjpsruYE/gpsbzN++EEPWOtZOeGNnYWBi6PSjBz+KlBjIts1mzczcF/cxtgydyHPxUivh52+6oVTF6MpMRT8yO3My0IynDXpZQjz52u183",
         region_name='us-east-1'  # Replace with your desired region
     )
 # Configure AWS credentials
