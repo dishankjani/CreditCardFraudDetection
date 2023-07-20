@@ -9,9 +9,9 @@ import pickle
 
 # Your AWS credentials
 session = boto3.Session(
-        aws_access_key_id='ASIARVBCLL7EZOFYS7E3',
-        aws_secret_access_key='E1+kEsOOQdCBRDYpQB4ayHxQ9PyqsCZu3xVrsMDq',
-        aws_session_token="FwoGZXIvYXdzEC8aDMhfd3z0dAp/rSn8kiLAAU1D9/4FjM1yLDFBKeu7ctDWKOBAYV2GVITV8SYI+pyQI4C7YcTQ/ammHIinPWfjTqSiyL7e7IMn0D0lcn4SQDt2wGPXuLGVocBVOp7+UdiHE/6IP6JN9fptq6MQdQ9gyfjE4dMtPCvnh0SU4CoBDA7uzFReXAQrsvb6tG+7bS3x/fkFvtkXSJpno/ALiWWaTAuyCIVCqwkenNQ22bIvz0SftVpql6wk8An9otiGVOXWao6darbkGANtev+V6tZ+gyjg+OSlBjItAJItPvTpDIEaoOIMYoNKmbEIu+fG3ZAfJLTH6lGbKHUgKyCM67sDjj8VLbxe",
+        aws_access_key_id='ASIARVBCLL7E3UTOJKPF',
+        aws_secret_access_key='g7qYhj2KlyFTAUb7GIhDQdBG6YIIT4wqkBAs72qs',
+        aws_session_token="FwoGZXIvYXdzEDIaDJwzd42KqPmCridAsCLAATSz4SVT75quaJPcuzFrrnFccInOOS4xch+vgFV+m8w0LS8ELjyu30mXbyrY9uTaj2UOd7tTC1Nnu8InIgkYq/pHZSHlnZN8XbkFk6j2gwDuJ+LxGclP0BjnNyoVtUH9LCiyeyRssyc4fvkBEH+DN+p5xEby3SQIodaieWdIsFxppQhnFAa6WHTM91Qx2ny56RSImZLJoP4qrYjDMIujcaR4pkg7HED3UV8xEqqRcxgw5e86KgNZLrMML3mFBl4Coyjwx+WlBjIt4kI8tXX5MuSXcDrYFVmW0bEqKBtWjpc8X6BYpNnR3obTYpT6CvTCH53yMu/3",
         region_name='us-east-1'  # Replace with your desired region
     )
 
