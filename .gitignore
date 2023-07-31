@@ -1,2 +1,5 @@
 venv/
 lambda_function.py
+fraudTransactionlambda.py
+CloudFormationTemplate.yaml
+model.pkl
