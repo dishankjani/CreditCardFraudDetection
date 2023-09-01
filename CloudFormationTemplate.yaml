@@ -1,0 +1,327 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template for credit card anomaly detection
+
+Parameters:
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t2.large
+
+Resources:
+
+  MySqsQueue:
+    Type: AWS::SQS::Queue
+
+  MySnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: MySnsTopic
+
+  MySnsSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref MySnsTopic
+      Protocol: sqs
+      Endpoint: !GetAtt MySqsQueue.Arn
+
+  MySnsSmsSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref MySnsTopic
+      Protocol: sms
+      Endpoint: +17828823378
+
+  MyApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: MyApiGateway
+    
+  MyApiResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt MyApiGateway.RootResourceId
+      RestApiId: !Ref MyApiGateway
+      PathPart: predict
+  
+  MyApiMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref MyApiGateway
+      ResourceId: !Ref MyApiResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations
+
+#deploy changes made to the api gateway
+  MyApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - MyApiMethod
+    Properties:
+      RestApiId: !Ref MyApiGateway
+      StageName: prod
+
+#Creating a Lambda function with code mentioned here
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import json
+          import numpy as np
+          import boto3
+          from urllib.parse import parse_qs
+          import os
+
+          def min_max_scale(data):
+              data = data.astype(float)  # Convert data to float type
+              min_vals = np.min(data, axis=0)
+              max_vals = np.max(data, axis=0)
+              scaled_data = (data - min_vals) / (max_vals - min_vals)
+              
+              return scaled_data, min_vals, max_vals
+              
+          def ordinal_encode(data):
+              categories = []
+              encoded_data = np.zeros_like(data, dtype=int)
+              
+              for i in range(data.shape[1]):
+                  unique_values = np.unique(data[:, i])
+                  categories.append(unique_values)
+                  encoded_data[:, i] = np.searchsorted(unique_values, data[:, i])
+              
+              return encoded_data, categories
+
+          def process_data(x_test):
+              # Assuming columns to encode are: 'first', 'last', 'gender', 'city', 'job', 'dob'
+              cols_to_encode = [2, 3, 4, 5, 7, 8]
+              
+              # Perform ordinal encoding for selected columns
+              encoded_data, categories = ordinal_encode(x_test[:, cols_to_encode])
+              
+              # Replace the original columns with the encoded values
+              x_test_encoded = np.concatenate((x_test[:, :2], encoded_data, x_test[:, 10:]), axis=1)
+              
+              return x_test_encoded, categories
+
+          def send_sns_message(message):
+              topic_arn = "arn:aws:sns:" + os.environ['AWS_REGION'] + ":" + os.environ['AWS_ACCOUNT_ID'] + ":MySnsTopicArn"  # Replace with your SNS topic ARN
+              sns_client = boto3.client('sns')
+              sns_client.publish(
+                  TopicArn=topic_arn,
+                  Message=message
+              )
+              
+          def send_sqs_message(queue_url, message_body):
+              sqs_client = boto3.client('sqs')
+              response = sqs_client.send_message(
+                  QueueUrl=queue_url,
+                  MessageBody=message_body
+              )
+              return response
+
+          def lambda_handler(event, context):
+              S3_BUCKET_NAME = 'cloudtermassignment'
+              
+              # Your AWS credentials
+              session = boto3.Session(
+                aws_access_key_id='ASIARVBCLL7E67NGLMMS',
+                aws_secret_access_key='NlBoplTFkymlSSjWPtekNZVzS5OI7U9UJ4KwoS5h',
+                aws_session_token="FwoGZXIvYXdzEEAaDDrCGJhww+Z3PQ0xoiLAAfPo5uqMjPWinq1geo8xe/1y1/PXexdu3j3/EWxUj5BFtQpzsErOtv51DDsmPzSAIvZfQGbdVR15X1pUJ94ZkO+vsuoq9/x0AIQ2L1lRyvuOwokqD2mIP7kd7MBZVSoP2DybFg3iaUhnTeMFga2QgKEg4DzAQxeswyEpUyEQDHa11Y/4vvHgZUkyCp22RsSAVt00IgdCDB2wqM4Qxn/yNDYTZTpcwuyCJC/nm1aVHZwzwM00KfecfPZLTuuVAArWdyiG6aCmBjIt5dtG/7RYpyjDTFv0vWAMoxWL9Kq0d4ApY5yMTsTb/tCWMfHZu9YZjD/B7tXa",
+                region_name='us-east-1'  # Replace with your desired region
+              )
+              
+              # Configure AWS credentials
+              s3_client = session.client('s3')
+              request_body = event['body']
+              print(request_body)
+              
+              # Assuming the body contains JSON data, you can parse it
+              data = json.loads(request_body)
+              cc_num = data['cc_num']
+              amt = data['amt']
+              first = data['first']
+              last = data['last']
+              city = data['city']
+              gender = data['gender']
+              city_pop = data['city_pop']
+              job = data['job']
+              dob = data['dob']
+              result = data.get('result')  # Use data.get('result') to handle missing 'result' key
+              
+              # Create the original data dictionary
+              x_test1 = {
+                  'cc_num': cc_num,
+                  'amt': amt,
+                  'first': first,
+                  'last': last,
+                  'gender': gender,
+                  'city': city,
+                  'city_pop': city_pop,
+                  'job': job,
+                  'dob': dob,
+                  'result': result
+              }
+              
+              # Create the original data array
+              x_test = np.array([[cc_num, amt, first, last, gender, city, city_pop, job, dob]])
+
+              x_test_encoded, categories = process_data(x_test)
+              
+              # Apply scaling to the encoded data
+              x_test_scaled, min_vals, max_vals = min_max_scale(x_test_encoded)
+              
+              # Convert data dictionary to JSON string
+              x_test_json = json.dumps(x_test1)
+              
+              # Save the data to S3 bucket
+              s3_client.put_object(
+                  Bucket=S3_BUCKET_NAME,
+                  Key='data.json',
+                  Body=x_test_json
+              )
+              
+              print(result)
+              
+              fraud_result = "Not defined"
+              
+              if result == 1:
+                  fraud_result = "Fraud"
+              elif result == 0:
+                  fraud_result = "Not Fraud"
+                  message = f"Fraudulent transaction detected for credit card. Please contact your bank immediately."
+                  send_sns_message(message)
+                  #sqs_queue_url = 'https://sqs.us-east-1.amazonaws.com/113888681929/creditcardfraud'  # Replace with your SQS queue URL
+                  #message = f"Fraudulent transaction detected for credit card {cc_num}. Please contact your bank immediately."
+                  #send_sqs_message(sqs_queue_url, message)
+              print(fraud_result)
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps({
+                      'message': 'Data received successfully',
+                      'result': fraud_result
+                  })
+              }
+
+      Handler: index.lambda_handler
+      Runtime: python3.8
+      Role: 'arn:aws:iam::113888681929:role/LabRole'
+      Layers:
+        - arn:aws:lambda:us-east-1:668099181075:layer:AWSLambda-Python38-SciPy1x:107  # Replace with the ARN of the existing Python layer
+      Timeout: 20
+#this will ive permission to api gateway to invoke the LambdaFunction when it is trigered
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MyApiGateway}/*/POST/predict"
+  
+  LambdaSnsPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: sns.amazonaws.com
+      SourceArn: !Ref MySnsTopic
+
+  FraudLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import json
+
+          def lambda_handler(event, context):
+              message = f"Error Reported to Bank of the Given Credit Card"
+              print(message)
+              response = {
+                  'statusCode': 200,
+                  'body': json.dumps({'message': message})
+              }
+
+              return response
+
+      Handler: index.lambda_handler
+      Runtime: python3.8
+      Role: 'arn:aws:iam::113888681929:role/LabRole'
+      Timeout: 30
+
+  
+  LambdaSqsEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1
+      EventSourceArn: !GetAtt MySqsQueue.Arn
+      FunctionName: !Ref FraudLambdaFunction
+
+  
+  
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: ami-007855ac798b5175e 
+      InstanceType: t2.large
+      KeyName: termassignment 
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          sudo apt-get update
+          sudo apt-get install -y git
+          sudo apt-get install -y python3-pip
+          sudo pip3 install --upgrade pip
+          cd /home/ubuntu/
+          git clone https://github.com/dishankjani/cloudtermassignment.git
+          cd cloudtermassignment
+          echo 'export ApiGatewayEndpoint="https://${MyApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod/predict"' >> /etc/environment
+          source /etc/environment
+          sudo rm -rf /usr/lib/python3/dist-packages/blinker
+          sudo rm -rf /usr/lib/python3/dist-packages/blinker-1.4.egg-info
+          sudo pip3 install -r requirements.txt
+          sudo python3 creditcardfraud.py
+          sudo python3 app.py
+      SecurityGroups:
+        - !Ref EC2SecurityGroup
+
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access and HTTP traffic
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+#In the Outputs section we expose the URL of ec2, API gateway as a enviornment variable
+#The API endpoint is exposed to the lambda function, however we want to use the APi gateway endpoint in the app.py file running in our ec2 instance
+#Thus inside the ec2 commands we mention echo 'export ApiGatewayEndpoint="https://${MyApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod/predict"' >> /etc/environment
+#This will set the endpoint dynamically created using cloudformation into our ec2 instance enviornment variables. This endpoint we can access using os.getenvirn() method in app.py file
+Outputs:
+  MySnsTopicArn:
+    Value: !Ref MySnsTopic
+    Export:
+      Name: MySnsTopicArn
+
+  InstanceURL:
+    Description: Public URL of the EC2 instance
+    Value: !Sub "http://${EC2Instance.PublicIp}"
+
+  ApiEndpoint:
+    Description: The endpoint of the API Gateway
+    Value: !Sub "https://${MyApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod/predict"
+    Export:
+      Name: ApiGatewayEndpoint
